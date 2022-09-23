@@ -1,0 +1,51 @@
+# version of compose file
+version: "3.8"
+
+services:
+  # services == contenna
+  db:
+    image: postgres:14.5-alpine3.16
+    environment:
+      # OS time zone
+      TZ: UTC
+      # postgres time zone
+      PGTZ: UTC
+      # db password
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    # use directory from host side
+    # vloumes: host pass:contenna pass
+    volumes:
+      - ./api/tmp/db:/var/lib/postgresql/data
+
+  api:
+    # base image
+    build:
+      context: ./api
+      args:
+        WORKDIR: $WORKDIR
+    
+    environment:
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    volumes:
+      - ./api:/$WORKDIR
+    # build order
+    depends_on:
+      - db
+    # public port
+    ports:
+      - "$API_PORT:3000"
+
+  front:
+    build:
+      context: ./front
+      args:
+        WORKDIR: $WORKDIR
+        #CONTAINER_PORT: $CONTAINER_PORT
+    # comannd in contenna
+    command: yarn run dev
+    volumes:
+      - "./front:/$WORKDIR"
+    ports:
+      - "$FRONT_PORT:3000"
+    depends_on:
+      - api
