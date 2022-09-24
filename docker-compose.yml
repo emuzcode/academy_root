@@ -23,9 +23,10 @@ services:
       context: ./api
       args:
         WORKDIR: $WORKDIR
-    
+
     environment:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      API_DOMAIN: "localhost:$FRONT_PORT"
     volumes:
       - ./api:/$WORKDIR
     # build order
@@ -41,6 +42,7 @@ services:
       args:
         WORKDIR: $WORKDIR
         #CONTAINER_PORT: $CONTAINER_PORT
+        API_URL: "http://localhost:$API_PORT"
     # comannd in contenna
     command: yarn run dev
     volumes:
